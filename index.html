@@ -1,95 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Veteran Dads Who Game</title>
   <style>
     :root{
-      --halo-green:#00ff9a;
-      --halo-cyan:#00e5ff;
-      --halo-bg:#000;
-      --halo-text:#e8fff5;
+      --accent: #00ffcc;
+      --green: #00ff00;
+      --text: #ffffff;
     }
-    body{
-      margin:0;
-      font-family: Arial, sans-serif;
-      background: var(--halo-bg);
-      color: var(--halo-text);
-      overflow-x:hidden; /* allow vertical scroll */
-      transition: background .3s, color .3s;
+    /* ===== Page & Background ===== */
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      overflow-y: auto;
+      position: relative;
+      background: #000; /* fallback */
     }
-    body.light-mode{
-      --halo-bg:#f5f5f5;
-      --halo-text:#111;
+    /* Full-screen background image with dark overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background: url("images/halo-bg.jpg") center / cover no-repeat fixed;
+      filter: brightness(0.55);
     }
-    canvas{ position:fixed; inset:0; z-index:-1; display:block; }
+    /* Optional subtle grid/halo glow overlay */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: radial-gradient(60% 40% at 50% -10%, rgba(0,255,204,0.20), transparent 60%);
+      pointer-events: none;
+    }
 
-    .content{
-      position:relative; z-index:1;
-      max-width: 960px; margin: 50px auto;
-      background: rgba(0, 10, 8, 0.65);
-      padding: 30px; border-radius: 14px;
-      box-shadow: 0 0 28px rgba(0,255,154,0.3);
-      text-align:center; backdrop-filter: blur(3px);
+    /* ===== Content Card ===== */
+    .content {
+      max-width: 900px;
+      margin: 48px auto;
+      background: rgba(0, 0, 0, 0.70);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 255, 170, 0.35);
+      text-align: center;
+      backdrop-filter: blur(2px);
     }
-    body.light-mode .content{ background: rgba(255,255,255,0.85); }
 
-    h1{ color: var(--halo-green); text-shadow:0 0 14px rgba(0,255,154,.3); margin: 0 0 12px; }
-    h2{ color: var(--halo-cyan); margin: 18px 0 8px; }
-    p{ font-size:18px; line-height:1.6; margin: 0 auto 18px; max-width: 820px; }
-    a{ color: var(--halo-cyan); font-weight:700; }
-    a:hover{text-decoration:underline;}
-    img.hero{ border-radius:12px; width:300px; margin:20px 0; box-shadow:0 0 18px rgba(0,255,154,.25); background:#111; }
+    h1 { color: var(--green); margin: 0 0 12px; text-shadow: 0 0 12px rgba(0,255,0,.35); }
+    h2 { color: var(--accent); margin: 28px 0 12px; text-shadow: 0 0 10px rgba(0,255,204,.25); }
+    p  { font-size: 18px; line-height: 1.6; margin: 0 auto 18px; max-width: 780px; }
+    a  { color: var(--accent); font-weight: 700; text-decoration: none; }
+    a:hover { text-decoration: underline; }
 
-    /* Game table */
-    table{ width:100%; border-collapse:collapse; margin-top:20px; background: rgba(0, 20, 16, 0.55); }
-    th,td{ padding:12px; border:1px solid rgba(0,255,154,.2); vertical-align:top; }
-    th{ background:rgba(0,255,154,.12); color:var(--halo-cyan); font-size: 20px; }
-    td ul{ list-style:disc; padding-left:20px; text-align:left; margin:0; }
-    td li{ margin:6px 0; cursor:help; }
-
-    /* Buttons */
-    .btn{
-      padding:10px 16px; margin:8px;
-      border:none; border-radius:8px; cursor:pointer; font-weight:bold;
-      background:rgba(0,40,28,.6); color:#fff;
-      box-shadow: 0 0 12px rgba(0,255,154,.25);
+    img.hero {
+      margin-top: 18px;
+      width: 300px;
+      max-width: 90%;
+      border-radius: 10px;
+      box-shadow: 0 0 16px rgba(0,255,204,.25);
+      background: #111;
     }
-    .btn:hover{ background:rgba(0,60,40,.8); }
-    body.light-mode .btn{ background:#ccc; color:#000; box-shadow:none; }
 
-    /* Random game picker */
-    .random-game{ margin-top:20px; }
-    .game-box{ margin-top:12px; }
-    .game-box img{ width:220px; border-radius:8px; box-shadow:0 0 12px rgba(0,255,154,.3); }
+    /* ===== Tables ===== */
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; background: rgba(0,15,12,.55); }
+    th, td { border: 1px solid rgba(0,255,204,.25); padding: 12px; }
+    th { background: rgba(0,255,204,.12); color: var(--accent); font-size: 18px; }
+    td { text-align: left; font-size: 17px; }
 
-    /* Easter egg modal */
-    #easter-egg{
-      position:fixed; inset:0; display:none; z-index:10;
-      background: rgba(0,0,0,.6);
-      align-items: center; justify-content: center;
+    /* ===== Buttons ===== */
+    .btn {
+      margin: 10px;
+      padding: 10px 16px;
+      font-size: 16px;
+      font-weight: 700;
+      border: 1px solid rgba(0,255,204,.45);
+      border-radius: 10px;
+      background: rgba(0,40,32,.7);
+      color: #eafff7;
+      box-shadow: 0 0 12px rgba(0,255,204,.25);
+      cursor: pointer;
     }
-    #easter-card{
-      background:#0b1110; color:#bfffe7; padding:24px;
-      border-radius:14px; box-shadow:0 0 24px #0f8;
-      max-width: min(92vw, 520px); text-align:center;
-      border:1px solid rgba(0,255,154,.35);
+    .btn:hover { background: rgba(0,60,48,.85); }
+
+    /* ===== Random game display ===== */
+    .random-game { margin-top: 16px; }
+    .game-box { margin-top: 10px; }
+    .game-box img { width: 240px; max-width: 85%; border-radius: 8px; box-shadow: 0 0 12px rgba(0,255,204,.3); }
+
+    /* ===== Easter egg popup ===== */
+    #popup {
+      display: none;
+      position: fixed;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,.92);
+      color: #ff2a2a;
+      font-size: 40px;
+      font-weight: 900;
+      padding: 22px 34px;
+      border: 2px solid #ff2a2a;
+      border-radius: 12px;
+      z-index: 10;
+      text-shadow: 0 0 10px rgba(255,42,42,.6);
+      animation: frenzy 0.6s ease-in-out 0s 6 alternate;
     }
-    #easter-card img{
-      max-width: 100%; border-radius: 10px; margin-bottom: 12px;
-      box-shadow: 0 0 18px rgba(0,255,154,.25);
+    @keyframes frenzy {
+      from { box-shadow: 0 0 16px rgba(255,42,42,.4); transform: translate(-50%, -50%) scale(1.00); }
+      to   { box-shadow: 0 0 26px rgba(255,42,42,.8); transform: translate(-50%, -50%) scale(1.04); }
     }
-    .spacer{ height:90px; }
   </style>
 </head>
 <body>
-  <!-- Halo starfield background -->
-  <canvas id="halo"></canvas>
 
   <div class="content">
     <h1>Veteran Dads Who Game</h1>
 
+    <h2>About Me</h2>
     <p>
       Hello, I'm a father and a veteran who likes to game.
       I enjoy military simulators like <strong>Arma</strong> or fantasy games like <strong>World of Warcraft</strong>.
@@ -106,9 +138,8 @@
 
     <!-- Controls -->
     <div>
-      <button class="btn" id="pickBtn">🎮 Pick a Steam Game</button>
-      <button class="btn" id="musicBtn">🎵 Play Halo Theme</button>
-      <button class="btn" id="themeBtn">🌗 Toggle Light/Dark</button>
+      <button id="musicBtn" class="btn">🎵 Play Halo Theme</button>
+      <button id="randomBtn" class="btn">🎮 Random Steam Game</button>
     </div>
 
     <!-- Random game result -->
@@ -117,52 +148,46 @@
       <div class="game-box" id="gameBox"></div>
     </div>
 
-    <!-- Chart-style table (your opinions) -->
-    <h2>Games I Think Are Worth Playing vs Not Worth Playing</h2>
-    <table aria-label="Games worth playing vs not worth playing">
-      <thead>
-        <tr>
-          <th>Games I Think Are Worth Playing</th>
-          <th>Games I Think Are Not Worth Playing</th>
-        </tr>
-      </thead>
+    <!-- Tables -->
+    <h2>Games I Think Are Worth Playing</h2>
+    <table>
+      <thead><tr><th>Game Title</th></tr></thead>
       <tbody>
-        <tr>
-          <td>
-            <ul>
-              <li title="Classic fantasy MMO with endless raids and dungeons.">World of Warcraft</li>
-              <li title="Large-scale warfare, teamwork-focused battles.">Battlefield 6</li>
-              <li title="Persistent war MMO where logistics matter.">Foxhole</li>
-              <li title="Modern military sandbox from the Arma series.">Arma Reforger</li>
-              <li title="Survival zombie apocalypse with realism.">DayZ</li>
-            </ul>
-          </td>
-          <td>
-            <ul>
-              <li title="Over-monetized and repetitive grind.">Destiny</li>
-              <li title="Too futuristic, drifted from classic COD.">Call of Duty: Black Ops 7</li>
-              <li title="Outdated story pacing, not beginner-friendly.">Final Fantasy VII</li>
-              <li title="Great in theory, but slow and overwhelming.">Stellaris</li>
-            </ul>
-          </td>
-        </tr>
+        <tr><td>World of Warcraft</td></tr>
+        <tr><td>Halo Infinite</td></tr>
+        <tr><td>Battlefield 6</td></tr>
+        <tr><td>Foxhole</td></tr>
+        <tr><td>Arma Reforger</td></tr>
+        <tr><td>DayZ</td></tr>
+        <tr><td>Escape From Tarkov</td></tr>
+        <tr><td>Squad</td></tr>
+        <tr><td>Hell Let Loose</td></tr>
+        <tr><td>Mount &amp; Blade II: Bannerlord</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Games I Think Are Not Worth Playing</h2>
+    <table>
+      <thead><tr><th>Game Title</th></tr></thead>
+      <tbody>
+        <tr><td>Destiny</td></tr>
+        <tr><td>Call of Duty: Black Ops 7</td></tr>
+        <tr><td>Final Fantasy 7</td></tr>
+        <tr><td>Stellaris</td></tr>
+        <tr><td>Anthem</td></tr>
+        <tr><td>Fallout 76</td></tr>
+        <tr><td>No Man's Sky (at launch)</td></tr>
+        <tr><td>Diablo Immortal</td></tr>
+        <tr><td>Aliens: Colonial Marines</td></tr>
+        <tr><td>War Z (Infestation Survivor Stories)</td></tr>
       </tbody>
     </table>
   </div>
 
-  <!-- Easter egg modal -->
-  <div id="easter-egg">
-    <div id="easter-card">
-      <img id="chief" src="images/masterchief.png" alt="Master Chief">
-      <h3>⚔️ You unlocked the Halo Easter Egg! ⚔️</h3>
-      <p>Spartans never die. They just go missing in action.</p>
-      <button class="btn" id="closeEgg">Close</button>
-    </div>
-  </div>
+  <!-- Easter Egg popup -->
+  <div id="popup">🔥 KILLING FRENZY! 🔥</div>
 
-  <div class="spacer"></div>
-
-  <!-- Local audio assets (upload these to your repo) -->
+  <!-- Audio -->
   <audio id="haloAudio" preload="auto" loop>
     <source src="audio/halo-theme.mp3" type="audio/mpeg">
   </audio>
@@ -171,182 +196,91 @@
   </audio>
 
   <script>
-    /* ============ HALO-STYLE BACKGROUND ============ */
-    const canvas = document.getElementById('halo');
-    const ctx = canvas.getContext('2d');
-    function resize(){ canvas.width = innerWidth; canvas.height = innerHeight; }
-    resize(); addEventListener('resize', resize);
+    /* ===== Music Toggle ===== */
+    const musicBtn = document.getElementById('musicBtn');
+    const music = document.getElementById('haloAudio');
+    music.volume = 0.30;
 
-    // Stars
-    const STAR_COUNT = 220;
-    const stars = [];
-    function initStars(){
-      stars.length = 0;
-      for(let i=0;i<STAR_COUNT;i++){
-        stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*1.2+0.2, tw: Math.random()*0.6+0.4 });
+    // Arm audio pipeline on first interaction (helps with autoplay policies)
+    let armed = false;
+    function armAudioOnce(){
+      if (armed) return;
+      armed = true;
+      music.muted = true;
+      music.play().then(()=>{ music.pause(); music.muted=false; }).catch(()=>{});
+      sfx.muted = true;
+      sfx.play().then(()=>{ sfx.pause(); sfx.muted=false; sfx.currentTime=0; }).catch(()=>{});
+      window.removeEventListener('pointerdown', armAudioOnce);
+      window.removeEventListener('keydown', armAudioOnce);
+    }
+    window.addEventListener('pointerdown', armAudioOnce);
+    window.addEventListener('keydown', armAudioOnce);
+
+    musicBtn.addEventListener('click', async () => {
+      try {
+        if (music.paused) {
+          await music.play();
+          musicBtn.textContent = "⏸️ Pause Halo Theme";
+        } else {
+          music.pause();
+          musicBtn.textContent = "🎵 Play Halo Theme";
+        }
+      } catch (err) {
+        alert("Couldn't start audio. Make sure audio/halo-theme.mp3 exists.");
+        console.error(err);
       }
-    }
-    initStars(); addEventListener('resize', initStars);
+    });
 
-    // Halo ring
-    function drawRing(){
-      const cx = canvas.width*0.5;
-      const cy = canvas.height*0.1;
-      const radius = Math.max(canvas.width, canvas.height)*0.8;
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, Math.PI*0.08, Math.PI*0.92);
-      ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(0, 255, 154, 0.18)';
-      ctx.shadowBlur = 18; ctx.shadowColor = 'rgba(0, 255, 154, 0.45)';
-      ctx.stroke();
-      ctx.restore();
+    /* ===== Random Steam Game (includes Halo Infinite) ===== */
+    const randomBtn = document.getElementById('randomBtn');
+    const pickText  = document.getElementById('pickText');
+    const gameBox   = document.getElementById('gameBox');
 
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius*0.995, Math.PI*0.12, Math.PI*0.88);
-      ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(0, 229, 255, 0.15)';
-      ctx.shadowBlur = 8; ctx.shadowColor = 'rgba(0, 229, 255, 0.35)';
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    function draw(){
-      ctx.fillStyle = 'rgba(0,0,0,0.35)';
-      ctx.fillRect(0,0,canvas.width,canvas.height);
-
-      // stars drift
-      for(const s of stars){
-        s.y += 0.25 + Math.sin((s.x+s.y)*0.003)*0.1;
-        if(s.y > canvas.height) s.y = -2;
-        const a = 0.65 + Math.sin((s.y+s.x)*0.01)*0.25 * s.tw;
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(180,255,225,${a})`;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = 'rgba(0,255,154,0.5)';
-        ctx.fill();
-      }
-
-      drawRing();
-      requestAnimationFrame(draw);
-    }
-    draw();
-
-    /* ============ RANDOM STEAM GAME PICKER (20+ games) ============ */
     const steamGames = [
-      // Your favorites / related
-      {name:"World of Warcraft", url:"https://worldofwarcraft.blizzard.com/", img:"https://upload.wikimedia.org/wikipedia/en/9/91/WoW_Box_Art1.jpg"},
-      {name:"Battlefield 2042", url:"https://store.steampowered.com/app/1517290/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1517290/header.jpg"},
-      {name:"Foxhole", url:"https://store.steampowered.com/app/505460/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/505460/header.jpg"},
+      {name:"Halo Infinite", url:"https://store.steampowered.com/app/1240440/Halo_Infinite/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1240440/header.jpg"},
       {name:"Arma Reforger", url:"https://store.steampowered.com/app/1874880/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1874880/header.jpg"},
       {name:"DayZ", url:"https://store.steampowered.com/app/221100/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/221100/header.jpg"},
-
-      // Tactical shooters & mil-sim
+      {name:"Foxhole", url:"https://store.steampowered.com/app/505460/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/505460/header.jpg"},
+      {name:"Arma 3", url:"https://store.steampowered.com/app/107410/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/107410/header.jpg"},
       {name:"Squad", url:"https://store.steampowered.com/app/393380/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/393380/header.jpg"},
       {name:"Hell Let Loose", url:"https://store.steampowered.com/app/686810/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/686810/header.jpg"},
       {name:"Insurgency: Sandstorm", url:"https://store.steampowered.com/app/581320/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/581320/header.jpg"},
-      {name:"Arma 3", url:"https://store.steampowered.com/app/107410/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/107410/header.jpg"},
-      {name:"Ground Branch", url:"https://store.steampowered.com/app/16900/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/16900/header.jpg"},
-      {name:"Ready or Not", url:"https://store.steampowered.com/app/1144200/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1144200/header.jpg"},
       {name:"Counter-Strike 2", url:"https://store.steampowered.com/app/730/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg"},
-
-      // Strategy / RTS / Grand Strategy
-      {name:"Company of Heroes 3", url:"https://store.steampowered.com/app/1677280/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1677280/header.jpg"},
-      {name:"Total War: WARHAMMER III", url:"https://store.steampowered.com/app/1142710/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1142710/header.jpg"},
-      {name:"Hearts of Iron IV", url:"https://store.steampowered.com/app/394360/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/394360/header.jpg"},
-      {name:"Civilization VI", url:"https://store.steampowered.com/app/289070/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/289070/header.jpg"},
-      {name:"War Thunder", url:"https://store.steampowered.com/app/236390/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/236390/header.jpg"},
-
-      // Survival / Open World
-      {name:"Rust", url:"https://store.steampowered.com/app/252490/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/252490/header.jpg"},
-      {name:"Valheim", url:"https://store.steampowered.com/app/892970/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/892970/header.jpg"},
-      {name:"ARK: Survival Evolved", url:"https://store.steampowered.com/app/346110/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/346110/header.jpg"},
-      {name:"7 Days to Die", url:"https://store.steampowered.com/app/251570/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/251570/header.jpg"},
-      {name:"The Forest", url:"https://store.steampowered.com/app/242760/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/242760/header.jpg"},
-      {name:"Sons of the Forest", url:"https://store.steampowered.com/app/1326470/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1326470/header.jpg"},
-
-      // Bonus co-op favorite
-      {name:"Deep Rock Galactic", url:"https://store.steampowered.com/app/548430/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/548430/header.jpg"}
+      {name:"Company of Heroes 3", url:"https://store.steampowered.com/app/1677280/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1677280/header.jpg"}
     ];
 
-    const pickBtn  = document.getElementById('pickBtn');
-    const pickText = document.getElementById('pickText');
-    const gameBox  = document.getElementById('gameBox');
-
-    pickBtn.addEventListener('click', ()=>{
-      const g = steamGames[Math.floor(Math.random()*steamGames.length)];
+    randomBtn.addEventListener('click', () => {
+      const g = steamGames[Math.floor(Math.random() * steamGames.length)];
       pickText.textContent = `Try: ${g.name}`;
       gameBox.innerHTML = `<a href="${g.url}" target="_blank" rel="noopener">
         <img src="${g.img}" alt="${g.name}">
       </a>`;
     });
 
-    /* ============ HALO MUSIC & THEME TOGGLES ============ */
-    const musicBtn = document.getElementById('musicBtn');
-    const music = document.getElementById('haloAudio');
-    music.volume = 0.25;
-
-    // Unlock audio on first user interaction (helps with autoplay policies)
-    let audioArmed = false;
-    function armAudio(){
-      if(audioArmed) return;
-      audioArmed = true;
-      // Attempt a quick play/pause to "unlock" audio pipeline
-      music.muted = true;
-      music.play().then(()=>{ music.pause(); music.muted = false; }).catch(()=>{ /* ignore */ });
-      // Also prime SFX
-      sfx.muted = true;
-      sfx.play().then(()=>{ sfx.pause(); sfx.muted = false; sfx.currentTime = 0; }).catch(()=>{ /* ignore */ });
-      window.removeEventListener('pointerdown', armAudio);
-      window.removeEventListener('keydown', armAudio);
-    }
-    window.addEventListener('pointerdown', armAudio);
-    window.addEventListener('keydown', armAudio);
-
-    music.addEventListener('error', ()=>console.warn('Audio error: ensure audio/halo-theme.mp3 exists and is a valid MP3.'));
-    music.addEventListener('canplaythrough', ()=>console.log('Halo theme ready.'));
-
-    async function toggleMusic(){
-      try{
-        if(music.paused){
-          await music.play();
-          musicBtn.textContent = '⏸️ Pause Halo Theme';
-        }else{
-          music.pause();
-          musicBtn.textContent = '🎵 Play Halo Theme';
-        }
-      }catch(err){
-        alert("Couldn't start audio. Make sure you uploaded /audio/halo-theme.mp3.");
-        console.error(err);
-      }
-    }
-    musicBtn.addEventListener('click', toggleMusic);
-
-    document.getElementById('themeBtn').onclick = () => document.body.classList.toggle('light-mode');
-
-    /* ============ EASTER EGG: KONAMI CODE (image + SFX) ============ */
-    const easter = document.getElementById('easter-egg');
-    const closeEgg = document.getElementById('closeEgg');
+    /* ===== Easter Egg - Konami Code (popup + SFX) ===== */
     const sfx = document.getElementById('sfx');
-    sfx.volume = 0.4;
+    const popup = document.getElementById('popup');
+    const code = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
+    let pos = 0;
 
-    let keys=[]; const code=[38,38,40,40,37,39,37,39,66,65];
-    window.addEventListener('keydown', e=>{
-      keys.push(e.keyCode); if(keys.length>10) keys.shift();
-      if(keys.toString()===code.toString()){
-        easter.style.display='flex';
-        // Try to play SFX (will work after any click or after music button was used)
-        sfx.currentTime = 0;
-        sfx.play().catch(()=>console.warn('SFX blocked until user interaction. Click Play Halo Theme once.'));
-        // Auto-hide after 4.5s if user doesn’t close
-        setTimeout(()=>{ if(easter.style.display==='flex') easter.style.display='none'; }, 4500);
-        keys=[];
+    document.addEventListener('keydown', e => {
+      const key = e.key;
+      if (key === code[pos]) {
+        pos++;
+        if (pos === code.length) {
+          popup.style.display = "block";
+          sfx.currentTime = 0;
+          sfx.play().catch(()=>{});
+          setTimeout(()=> popup.style.display = "none", 4200);
+          pos = 0;
+        }
+      } else {
+        pos = 0;
       }
     });
-    closeEgg.addEventListener('click', ()=>{ easter.style.display='none'; });
-
   </script>
 </body>
 </html>
+
 
 
