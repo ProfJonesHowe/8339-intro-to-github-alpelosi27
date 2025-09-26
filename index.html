@@ -10,7 +10,7 @@
       --green: #00ff00;
       --text: #ffffff;
     }
-
+    /* ===== Page & Background ===== */
     html, body { height: 100%; }
     body {
       margin: 0;
@@ -18,10 +18,9 @@
       font-family: Arial, Helvetica, sans-serif;
       overflow-y: auto;
       position: relative;
-      background: #000;
+      background: #000; /* fallback */
     }
-
-    /* Default Halo background */
+    /* Full-screen background image with dark overlay (HALO default) */
     body::before {
       content: "";
       position: fixed;
@@ -30,13 +29,12 @@
       background: url("images/halo-bg.jpg") center / cover no-repeat fixed;
       filter: brightness(0.55);
     }
-
-    /* WoW background override */
+    /* WOW background when toggled */
     body.wow-bg::before {
-      background: url("images/wow-bg.png") center / cover no-repeat fixed;
-      filter: brightness(0.65);
+      background: url("images/wow-bg.jpg") center / cover no-repeat fixed;
+      filter: brightness(0.55);
     }
-
+    /* Optional subtle grid/halo glow overlay */
     body::after {
       content: "";
       position: fixed;
@@ -46,6 +44,7 @@
       pointer-events: none;
     }
 
+    /* ===== Content Card ===== */
     .content {
       max-width: 900px;
       margin: 48px auto;
@@ -72,11 +71,13 @@
       background: #111;
     }
 
+    /* ===== Tables ===== */
     table { width: 100%; border-collapse: collapse; margin-top: 12px; background: rgba(0,15,12,.55); }
     th, td { border: 1px solid rgba(0,255,204,.25); padding: 12px; }
     th { background: rgba(0,255,204,.12); color: var(--accent); font-size: 18px; }
     td { text-align: left; font-size: 17px; }
 
+    /* ===== Buttons ===== */
     .btn {
       margin: 10px;
       padding: 10px 16px;
@@ -91,10 +92,12 @@
     }
     .btn:hover { background: rgba(0,60,48,.85); }
 
+    /* ===== Random game display ===== */
     .random-game { margin-top: 16px; }
     .game-box { margin-top: 10px; }
     .game-box img { width: 240px; max-width: 85%; border-radius: 8px; box-shadow: 0 0 12px rgba(0,255,204,.3); }
 
+    /* ===== Easter egg popup ===== */
     #popup {
       display: none;
       position: fixed;
@@ -127,25 +130,66 @@
     <p>
       Hello, I'm a father and a veteran who likes to game.
       I enjoy military simulators like <strong>Arma</strong> or fantasy games like <strong>World of Warcraft</strong>.
+      This page will tell you what games I've played and I think are worth getting,
+      as well as which games I don't think are worth getting.
     </p>
 
-    <p>Check out the latest games on
+    <p>
+      Check out the latest games on
       <a href="https://store.steampowered.com/" target="_blank" rel="noopener">Steam</a>.
     </p>
 
     <p><img class="hero" src="spartan.png" alt="Spartan Gaming Logo"></p>
 
+    <!-- Controls -->
     <div>
       <button id="musicBtn" class="btn">🎵 Play Halo Theme</button>
       <button id="randomBtn" class="btn">🎮 Random Steam Game</button>
     </div>
 
+    <!-- Random game result -->
     <div class="random-game">
       <p id="pickText">Click the button to get a random suggestion.</p>
       <div class="game-box" id="gameBox"></div>
     </div>
+
+    <!-- Tables -->
+    <h2>Games I Think Are Worth Playing</h2>
+    <table>
+      <thead><tr><th>Game Title</th></tr></thead>
+      <tbody>
+        <tr><td>World of Warcraft</td></tr>
+        <tr><td>Halo Infinite</td></tr>
+        <tr><td>Battlefield 6</td></tr>
+        <tr><td>Foxhole</td></tr>
+        <tr><td>Arma Reforger</td></tr>
+        <tr><td>DayZ</td></tr>
+        <tr><td>Escape From Tarkov</td></tr>
+        <tr><td>Squad</td></tr>
+        <tr><td>Hell Let Loose</td></tr>
+        <tr><td>Mount &amp; Blade II: Bannerlord</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Games I Think Are Not Worth Playing</h2>
+    <table>
+      <thead><tr><th>Game Title</th></tr></thead>
+      <tbody>
+        <tr><td>Destiny</td></tr>
+        <tr><td>Call of Duty: Black Ops 7</td></tr>
+        <tr><td>Final Fantasy 7</td></tr>
+        <tr><td>Stellaris</td></tr>
+        <tr><td>Anthem</td></tr>
+        <tr><td>Fallout 76</td></tr>
+        <tr><td>No Man's Sky (at launch)</td></tr>
+        <tr><td>Diablo Immortal</td></tr>
+        <tr><td>Aliens: Colonial Marines</td></tr>
+        <tr><td>War Z (Infestation Survivor Stories)</td></tr>
+      </tbody>
+    </table>
   </div>
 
+  <!-- Easter Egg popup -->
   <div id="popup">🔥 KILLING FRENZY! 🔥</div>
 
   <!-- Audio -->
@@ -155,29 +199,30 @@
   <audio id="sfx" preload="auto">
     <source src="audio/halo-easter.mp3" type="audio/mpeg">
   </audio>
+  <!-- NEW: WoW Stormwind theme -->
   <audio id="wowAudio" preload="auto" loop>
     <source src="audio/stormwind-theme.mp3" type="audio/mpeg">
   </audio>
 
   <script>
+    /* ===== Music Toggle ===== */
     const musicBtn = document.getElementById('musicBtn');
-    const music    = document.getElementById('haloAudio');
-    const sfx      = document.getElementById('sfx');
-    const wowAudio = document.getElementById('wowAudio');
+    const music    = document.getElementById('haloAudio'); // Halo theme
+    const sfx      = document.getElementById('sfx');       // Killing Frenzy SFX
+    const wowAudio = document.getElementById('wowAudio');  // Stormwind theme (WoW)
     const popup    = document.getElementById('popup');
 
     music.volume    = 0.30;
-    sfx.volume      = 0.65;
     wowAudio.volume = 0.35;
 
-    /* Arm audio */
+    // Arm audio pipeline on first interaction (helps with autoplay policies)
     let armed = false;
     function armAudioOnce(){
       if (armed) return;
       armed = true;
       [music, sfx, wowAudio].forEach(a => {
         a.muted = true;
-        a.play().then(()=>{ a.pause(); a.muted = false; a.currentTime = 0; }).catch(()=>{});
+        a.play().then(()=>{ a.pause(); a.muted=false; a.currentTime=0; }).catch(()=>{});
       });
       window.removeEventListener('pointerdown', armAudioOnce);
       window.removeEventListener('keydown', armAudioOnce);
@@ -185,10 +230,10 @@
     window.addEventListener('pointerdown', armAudioOnce);
     window.addEventListener('keydown', armAudioOnce);
 
-    /* Halo button */
     musicBtn.addEventListener('click', async () => {
       try {
         if (music.paused) {
+          // don’t overlap with WoW track
           wowAudio.pause();
           await music.play();
           musicBtn.textContent = "⏸️ Pause Halo Theme";
@@ -202,10 +247,11 @@
       }
     });
 
-    /* Random Steam Game */
+    /* ===== Random Steam Game (includes Halo Infinite) ===== */
     const randomBtn = document.getElementById('randomBtn');
     const pickText  = document.getElementById('pickText');
     const gameBox   = document.getElementById('gameBox');
+
     const steamGames = [
       {name:"Halo Infinite", url:"https://store.steampowered.com/app/1240440/Halo_Infinite/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1240440/header.jpg"},
       {name:"Arma Reforger", url:"https://store.steampowered.com/app/1874880/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1874880/header.jpg"},
@@ -218,36 +264,40 @@
       {name:"Counter-Strike 2", url:"https://store.steampowered.com/app/730/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg"},
       {name:"Company of Heroes 3", url:"https://store.steampowered.com/app/1677280/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1677280/header.jpg"}
     ];
+
     randomBtn.addEventListener('click', () => {
       const g = steamGames[Math.floor(Math.random() * steamGames.length)];
       pickText.textContent = `Try: ${g.name}`;
       gameBox.innerHTML = `<a href="${g.url}" target="_blank" rel="noopener">
-        <img src="${g.img}" alt="${g.name}"></a>`;
+        <img src="${g.img}" alt="${g.name}">
+      </a>`;
     });
 
-    /* Konami Code */
-    const konami = ["arrowup","arrowup","arrowdown","arrowdown","arrowleft","arrowright","arrowleft","arrowright","b","a"];
-    let kpos = 0;
+    /* ===== Easter Egg - Konami Code (popup + SFX) ===== */
+    const code = ["arrowup","arrowup","arrowdown","arrowdown","arrowleft","arrowright","arrowleft","arrowright","b","a"];
+    let pos = 0;
+
     document.addEventListener('keydown', async (e) => {
       const key = e.key.toLowerCase();
-      if (key === konami[kpos]) {
-        kpos++;
-        if (kpos === konami.length) {
+      if (key === code[pos]) {
+        pos++;
+        if (pos === code.length) {
           const saved = popup.textContent;
           popup.textContent = "🔥 KILLING FRENZY! 🔥";
           popup.style.display = "block";
-          try { sfx.currentTime = 0; await sfx.play(); } catch (err) {}
-          setTimeout(() => { popup.style.display = "none"; popup.textContent = saved; }, 4200);
-          kpos = 0;
+          try { sfx.currentTime = 0; await sfx.play(); } catch {}
+          setTimeout(()=> { popup.style.display = "none"; popup.textContent = saved; }, 4200);
+          pos = 0;
         }
       } else {
-        kpos = (key === "arrowup") ? 1 : 0;
+        pos = (key === "arrowup") ? 1 : 0; // soft reset
       }
     });
 
-    /* WoW Easter Egg */
+    /* ===== Easter Egg - WOW Background + Stormwind Theme (type "wow") ===== */
     let wowPos = 0, wowOn = false;
     const wowSeq = ['w','o','w'];
+
     document.addEventListener('keydown', async (e) => {
       const k = e.key.toLowerCase();
       if (k === wowSeq[wowPos]) {
@@ -257,10 +307,10 @@
           document.body.classList.toggle('wow-bg', wowOn);
           if (wowOn) {
             music.pause();
-            try { wowAudio.currentTime = 0; await wowAudio.play(); } catch(err){}
+            try { wowAudio.currentTime = 0; await wowAudio.play(); } catch {}
           } else {
             wowAudio.pause();
-            try { music.currentTime = 0; await music.play(); } catch(err){}
+            try { music.currentTime = 0; await music.play(); } catch {}
           }
           wowPos = 0;
         }
@@ -271,6 +321,7 @@
   </script>
 </body>
 </html>
+
 
 
 
