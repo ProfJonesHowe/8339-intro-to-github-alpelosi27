@@ -29,6 +29,13 @@
       background: url("images/halo-bg.jpg") center / cover no-repeat fixed;
       filter: brightness(0.55);
     }
+
+    /* WOW background (toggled by typing "wow") */
+    body.wow-bg::before {
+      background: url("images/wow-bg.jpg") center / cover no-repeat fixed;
+      filter: brightness(0.55);
+    }
+
     /* Optional subtle grid/halo glow overlay */
     body::after {
       content: "";
@@ -187,13 +194,13 @@
   <!-- Easter Egg popup -->
   <div id="popup">🔥 KILLING FRENZY! 🔥</div>
 
-<!-- Audio -->
-<audio id="haloAudio" preload="auto" loop>
-  <source src="audio/halo-theme.mp3" type="audio/mpeg">
-</audio>
-<audio id="sfx" preload="auto">
-  <source src="audio/halo-easter.mp3" type="audio/mpeg">
-</audio>
+  <!-- Audio -->
+  <audio id="haloAudio" preload="auto" loop>
+    <source src="audio/halo-theme.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="sfx" preload="auto">
+    <source src="audio/halo-easter.mp3" type="audio/mpeg">
+  </audio>
 
   <script>
     /* ===== Music Toggle ===== */
@@ -278,9 +285,36 @@
         pos = 0;
       }
     });
+
+    /* ===== Easter Egg - WOW Background (type "wow" to toggle) ===== */
+    let wowPos = 0;
+    let wowOn  = false;
+    const wowSeq = ['w','o','w'];
+
+    document.addEventListener('keydown', (e) => {
+      const k = e.key.toLowerCase();
+      if (k === wowSeq[wowPos]) {
+        wowPos++;
+        if (wowPos === wowSeq.length) {
+          wowOn = !wowOn;
+          document.body.classList.toggle('wow-bg', wowOn);
+
+          // show a quick status using the existing popup
+          const saved = popup.textContent;
+          popup.textContent = wowOn ? '🟢 Background: WoW' : '🟢 Background: Halo';
+          popup.style.display = 'block';
+          setTimeout(() => { popup.style.display = 'none'; popup.textContent = saved; }, 1400);
+
+          wowPos = 0;
+        }
+      } else {
+        wowPos = (k === 'w') ? 1 : 0;
+      }
+    });
   </script>
 </body>
 </html>
+
 
 
 
