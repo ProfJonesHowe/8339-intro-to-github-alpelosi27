@@ -10,7 +10,7 @@
       --green: #00ff00;
       --text: #ffffff;
     }
-    /* ===== Page & Background ===== */
+
     html, body { height: 100%; }
     body {
       margin: 0;
@@ -18,8 +18,10 @@
       font-family: Arial, Helvetica, sans-serif;
       overflow-y: auto;
       position: relative;
-      background: #000; /* fallback */
+      background: #000;
     }
+
+    /* Default Halo background */
     body::before {
       content: "";
       position: fixed;
@@ -28,10 +30,13 @@
       background: url("images/halo-bg.jpg") center / cover no-repeat fixed;
       filter: brightness(0.55);
     }
+
+    /* WoW background override */
     body.wow-bg::before {
-      background: url("images/wow-bg.jpg") center / cover no-repeat fixed;
-      filter: brightness(0.55);
+      background: url("images/wow-bg.png") center / cover no-repeat fixed;
+      filter: brightness(0.65);
     }
+
     body::after {
       content: "";
       position: fixed;
@@ -41,7 +46,6 @@
       pointer-events: none;
     }
 
-    /* ===== Content Card ===== */
     .content {
       max-width: 900px;
       margin: 48px auto;
@@ -68,13 +72,11 @@
       background: #111;
     }
 
-    /* ===== Tables ===== */
     table { width: 100%; border-collapse: collapse; margin-top: 12px; background: rgba(0,15,12,.55); }
     th, td { border: 1px solid rgba(0,255,204,.25); padding: 12px; }
     th { background: rgba(0,255,204,.12); color: var(--accent); font-size: 18px; }
     td { text-align: left; font-size: 17px; }
 
-    /* ===== Buttons ===== */
     .btn {
       margin: 10px;
       padding: 10px 16px;
@@ -89,12 +91,10 @@
     }
     .btn:hover { background: rgba(0,60,48,.85); }
 
-    /* ===== Random game display ===== */
     .random-game { margin-top: 16px; }
     .game-box { margin-top: 10px; }
     .game-box img { width: 240px; max-width: 85%; border-radius: 8px; box-shadow: 0 0 12px rgba(0,255,204,.3); }
 
-    /* ===== Easter egg popup ===== */
     #popup {
       display: none;
       position: fixed;
@@ -122,24 +122,30 @@
 
   <div class="content">
     <h1>Veteran Dads Who Game</h1>
+
     <h2>About Me</h2>
-    <p>Hello, I'm a father and a veteran who likes to game...</p>
+    <p>
+      Hello, I'm a father and a veteran who likes to game.
+      I enjoy military simulators like <strong>Arma</strong> or fantasy games like <strong>World of Warcraft</strong>.
+    </p>
+
+    <p>Check out the latest games on
+      <a href="https://store.steampowered.com/" target="_blank" rel="noopener">Steam</a>.
+    </p>
+
     <p><img class="hero" src="spartan.png" alt="Spartan Gaming Logo"></p>
 
-    <!-- Controls -->
     <div>
       <button id="musicBtn" class="btn">🎵 Play Halo Theme</button>
       <button id="randomBtn" class="btn">🎮 Random Steam Game</button>
     </div>
 
-    <!-- Random game result -->
     <div class="random-game">
       <p id="pickText">Click the button to get a random suggestion.</p>
       <div class="game-box" id="gameBox"></div>
     </div>
   </div>
 
-  <!-- Easter Egg popup -->
   <div id="popup">🔥 KILLING FRENZY! 🔥</div>
 
   <!-- Audio -->
@@ -154,20 +160,24 @@
   </audio>
 
   <script>
-    /* ===== Music Toggle ===== */
     const musicBtn = document.getElementById('musicBtn');
-    const music = document.getElementById('haloAudio');
-    music.volume = 0.30;
+    const music    = document.getElementById('haloAudio');
+    const sfx      = document.getElementById('sfx');
     const wowAudio = document.getElementById('wowAudio');
+    const popup    = document.getElementById('popup');
+
+    music.volume    = 0.30;
+    sfx.volume      = 0.65;
     wowAudio.volume = 0.35;
 
+    /* Arm audio */
     let armed = false;
     function armAudioOnce(){
       if (armed) return;
       armed = true;
       [music, sfx, wowAudio].forEach(a => {
         a.muted = true;
-        a.play().then(()=>{ a.pause(); a.muted=false; a.currentTime=0; }).catch(()=>{});
+        a.play().then(()=>{ a.pause(); a.muted = false; a.currentTime = 0; }).catch(()=>{});
       });
       window.removeEventListener('pointerdown', armAudioOnce);
       window.removeEventListener('keydown', armAudioOnce);
@@ -175,9 +185,11 @@
     window.addEventListener('pointerdown', armAudioOnce);
     window.addEventListener('keydown', armAudioOnce);
 
+    /* Halo button */
     musicBtn.addEventListener('click', async () => {
       try {
         if (music.paused) {
+          wowAudio.pause();
           await music.play();
           musicBtn.textContent = "⏸️ Pause Halo Theme";
         } else {
@@ -190,29 +202,66 @@
       }
     });
 
-    /* ===== WOW Easter Egg ===== */
-    let wowPos = 0;
-    let wowOn  = false;
-    const wowSeq = ['w','o','w'];
+    /* Random Steam Game */
+    const randomBtn = document.getElementById('randomBtn');
+    const pickText  = document.getElementById('pickText');
+    const gameBox   = document.getElementById('gameBox');
+    const steamGames = [
+      {name:"Halo Infinite", url:"https://store.steampowered.com/app/1240440/Halo_Infinite/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1240440/header.jpg"},
+      {name:"Arma Reforger", url:"https://store.steampowered.com/app/1874880/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1874880/header.jpg"},
+      {name:"DayZ", url:"https://store.steampowered.com/app/221100/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/221100/header.jpg"},
+      {name:"Foxhole", url:"https://store.steampowered.com/app/505460/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/505460/header.jpg"},
+      {name:"Arma 3", url:"https://store.steampowered.com/app/107410/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/107410/header.jpg"},
+      {name:"Squad", url:"https://store.steampowered.com/app/393380/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/393380/header.jpg"},
+      {name:"Hell Let Loose", url:"https://store.steampowered.com/app/686810/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/686810/header.jpg"},
+      {name:"Insurgency: Sandstorm", url:"https://store.steampowered.com/app/581320/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/581320/header.jpg"},
+      {name:"Counter-Strike 2", url:"https://store.steampowered.com/app/730/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg"},
+      {name:"Company of Heroes 3", url:"https://store.steampowered.com/app/1677280/", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1677280/header.jpg"}
+    ];
+    randomBtn.addEventListener('click', () => {
+      const g = steamGames[Math.floor(Math.random() * steamGames.length)];
+      pickText.textContent = `Try: ${g.name}`;
+      gameBox.innerHTML = `<a href="${g.url}" target="_blank" rel="noopener">
+        <img src="${g.img}" alt="${g.name}"></a>`;
+    });
 
-    document.addEventListener('keydown', (e) => {
+    /* Konami Code */
+    const konami = ["arrowup","arrowup","arrowdown","arrowdown","arrowleft","arrowright","arrowleft","arrowright","b","a"];
+    let kpos = 0;
+    document.addEventListener('keydown', async (e) => {
+      const key = e.key.toLowerCase();
+      if (key === konami[kpos]) {
+        kpos++;
+        if (kpos === konami.length) {
+          const saved = popup.textContent;
+          popup.textContent = "🔥 KILLING FRENZY! 🔥";
+          popup.style.display = "block";
+          try { sfx.currentTime = 0; await sfx.play(); } catch (err) {}
+          setTimeout(() => { popup.style.display = "none"; popup.textContent = saved; }, 4200);
+          kpos = 0;
+        }
+      } else {
+        kpos = (key === "arrowup") ? 1 : 0;
+      }
+    });
+
+    /* WoW Easter Egg */
+    let wowPos = 0, wowOn = false;
+    const wowSeq = ['w','o','w'];
+    document.addEventListener('keydown', async (e) => {
       const k = e.key.toLowerCase();
       if (k === wowSeq[wowPos]) {
         wowPos++;
         if (wowPos === wowSeq.length) {
           wowOn = !wowOn;
           document.body.classList.toggle('wow-bg', wowOn);
-
           if (wowOn) {
             music.pause();
-            wowAudio.currentTime = 0;
-            wowAudio.play();
+            try { wowAudio.currentTime = 0; await wowAudio.play(); } catch(err){}
           } else {
             wowAudio.pause();
-            music.currentTime = 0;
-            music.play();
+            try { music.currentTime = 0; await music.play(); } catch(err){}
           }
-
           wowPos = 0;
         }
       } else {
