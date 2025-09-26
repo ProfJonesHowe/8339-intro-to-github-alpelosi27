@@ -40,7 +40,7 @@
     p{ font-size:18px; line-height:1.6; margin: 0 auto 18px; max-width: 820px; }
     a{ color: var(--halo-cyan); font-weight:700; }
     a:hover{text-decoration:underline;}
-    img{ border-radius:12px; width:300px; margin:20px 0; box-shadow:0 0 18px rgba(0,255,154,.25); background:#111; }
+    img.hero{ border-radius:12px; width:300px; margin:20px 0; box-shadow:0 0 18px rgba(0,255,154,.25); background:#111; }
 
     /* Game table */
     table{ width:100%; border-collapse:collapse; margin-top:20px; background: rgba(0, 20, 16, 0.55); }
@@ -64,14 +64,22 @@
     .game-box{ margin-top:12px; }
     .game-box img{ width:220px; border-radius:8px; box-shadow:0 0 12px rgba(0,255,154,.3); }
 
-    /* Easter egg popup */
+    /* Easter egg modal */
     #easter-egg{
-      position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-      background:#111; color:#0f0; padding:30px; border-radius:12px;
-      display:none; z-index:10; box-shadow:0 0 24px #0f0; max-width: 90%;
-      text-align:center;
+      position:fixed; inset:0; display:none; z-index:10;
+      background: rgba(0,0,0,.6);
+      align-items: center; justify-content: center;
     }
-
+    #easter-card{
+      background:#0b1110; color:#bfffe7; padding:24px;
+      border-radius:14px; box-shadow:0 0 24px #0f8;
+      max-width: min(92vw, 520px); text-align:center;
+      border:1px solid rgba(0,255,154,.35);
+    }
+    #easter-card img{
+      max-width: 100%; border-radius: 10px; margin-bottom: 12px;
+      box-shadow: 0 0 18px rgba(0,255,154,.25);
+    }
     .spacer{ height:90px; }
   </style>
 </head>
@@ -94,12 +102,12 @@
       <a href="https://store.steampowered.com/" target="_blank" rel="noopener">Steam</a>.
     </p>
 
-    <p><img src="spartan.png" alt="Spartan Gaming Logo"></p>
+    <p><img class="hero" src="spartan.png" alt="Spartan Gaming Logo"></p>
 
     <!-- Controls -->
     <div>
       <button class="btn" id="pickBtn">🎮 Pick a Steam Game</button>
-      <button class="btn" id="musicBtn">🎵 Toggle Halo Theme</button>
+      <button class="btn" id="musicBtn">🎵 Play Halo Theme</button>
       <button class="btn" id="themeBtn">🌗 Toggle Light/Dark</button>
     </div>
 
@@ -140,15 +148,26 @@
         </tr>
       </tbody>
     </table>
-
   </div>
 
-  <div id="easter-egg">⚔️ You unlocked the Halo Easter Egg! ⚔️</div>
+  <!-- Easter egg modal -->
+  <div id="easter-egg">
+    <div id="easter-card">
+      <img id="chief" src="images/masterchief.png" alt="Master Chief">
+      <h3>⚔️ You unlocked the Halo Easter Egg! ⚔️</h3>
+      <p>Spartans never die. They just go missing in action.</p>
+      <button class="btn" id="closeEgg">Close</button>
+    </div>
+  </div>
+
   <div class="spacer"></div>
 
-  <!-- Halo theme (streamed) -->
-  <audio id="haloAudio" loop>
-    <source src="https://files.catbox.moe/z8d3co.mp3" type="audio/mpeg">
+  <!-- Local audio assets (upload these to your repo) -->
+  <audio id="haloAudio" preload="auto" loop>
+    <source src="audio/halo-theme.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="sfx" preload="auto">
+    <source src="audio/halo-easter.mp3" type="audio/mpeg">
   </audio>
 
   <script>
@@ -263,22 +282,69 @@
     });
 
     /* ============ HALO MUSIC & THEME TOGGLES ============ */
+    const musicBtn = document.getElementById('musicBtn');
     const music = document.getElementById('haloAudio');
-    document.getElementById('musicBtn').onclick = () => music.paused ? music.play() : music.pause();
+    music.volume = 0.25;
+
+    // Unlock audio on first user interaction (helps with autoplay policies)
+    let audioArmed = false;
+    function armAudio(){
+      if(audioArmed) return;
+      audioArmed = true;
+      // Attempt a quick play/pause to "unlock" audio pipeline
+      music.muted = true;
+      music.play().then(()=>{ music.pause(); music.muted = false; }).catch(()=>{ /* ignore */ });
+      // Also prime SFX
+      sfx.muted = true;
+      sfx.play().then(()=>{ sfx.pause(); sfx.muted = false; sfx.currentTime = 0; }).catch(()=>{ /* ignore */ });
+      window.removeEventListener('pointerdown', armAudio);
+      window.removeEventListener('keydown', armAudio);
+    }
+    window.addEventListener('pointerdown', armAudio);
+    window.addEventListener('keydown', armAudio);
+
+    music.addEventListener('error', ()=>console.warn('Audio error: ensure audio/halo-theme.mp3 exists and is a valid MP3.'));
+    music.addEventListener('canplaythrough', ()=>console.log('Halo theme ready.'));
+
+    async function toggleMusic(){
+      try{
+        if(music.paused){
+          await music.play();
+          musicBtn.textContent = '⏸️ Pause Halo Theme';
+        }else{
+          music.pause();
+          musicBtn.textContent = '🎵 Play Halo Theme';
+        }
+      }catch(err){
+        alert("Couldn't start audio. Make sure you uploaded /audio/halo-theme.mp3.");
+        console.error(err);
+      }
+    }
+    musicBtn.addEventListener('click', toggleMusic);
+
     document.getElementById('themeBtn').onclick = () => document.body.classList.toggle('light-mode');
 
-    /* ============ EASTER EGG: KONAMI CODE ============ */
+    /* ============ EASTER EGG: KONAMI CODE (image + SFX) ============ */
     const easter = document.getElementById('easter-egg');
-    const sfx = new Audio("https://files.catbox.moe/n4ev8n.mp3");
+    const closeEgg = document.getElementById('closeEgg');
+    const sfx = document.getElementById('sfx');
+    sfx.volume = 0.4;
+
     let keys=[]; const code=[38,38,40,40,37,39,37,39,66,65];
     window.addEventListener('keydown', e=>{
       keys.push(e.keyCode); if(keys.length>10) keys.shift();
       if(keys.toString()===code.toString()){
-        easter.style.display='block'; sfx.play();
-        setTimeout(()=>easter.style.display='none', 4000);
+        easter.style.display='flex';
+        // Try to play SFX (will work after any click or after music button was used)
+        sfx.currentTime = 0;
+        sfx.play().catch(()=>console.warn('SFX blocked until user interaction. Click Play Halo Theme once.'));
+        // Auto-hide after 4.5s if user doesn’t close
+        setTimeout(()=>{ if(easter.style.display==='flex') easter.style.display='none'; }, 4500);
         keys=[];
       }
     });
+    closeEgg.addEventListener('click', ()=>{ easter.style.display='none'; });
+
   </script>
 </body>
 </html>
