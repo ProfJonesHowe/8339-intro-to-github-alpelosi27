@@ -5,95 +5,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Veteran Dads Who Game</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      background: black;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
-
-    canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1; /* Keeps background behind text */
-    }
-
+    body { margin: 0; padding: 0; overflow: hidden; background: black; color: white; font-family: Arial, sans-serif; }
+    canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
     .content {
-      position: relative;
-      z-index: 1;
-      max-width: 700px;
-      margin: 50px auto;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
-      text-align: center;
+      position: relative; z-index: 1; max-width: 700px; margin: 50px auto; background: rgba(0,0,0,.7);
+      padding: 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,255,0,.7); text-align: center;
     }
-
-    h1 {
-      color: #00ff00;
-    }
-
-    h2 {
-      margin-bottom: 20px;
-      color: #00ffcc;
-    }
-
-    p {
-      font-size: 18px;
-      line-height: 1.6;
-    }
-
-    a {
-      color: #00ffcc;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    img {
-      margin-top: 20px;
-      border-radius: 10px;
-      width: 300px;
-    }
+    h1 { color: #00ff00; }
+    h2 { margin-bottom: 20px; color: #00ffcc; }
+    p { font-size: 18px; line-height: 1.6; }
+    a { color: #00ffcc; text-decoration: none; font-weight: bold; }
+    a:hover { text-decoration: underline; }
+    img { margin-top: 20px; border-radius: 10px; width: 300px; }
   </style>
 </head>
 <body>
   <canvas id="matrix"></canvas>
 
   <div class="content">
-    <!-- Main Heading -->
     <h1>Veteran Dads Who Game</h1>
 
-    <!-- Subheadings -->
     <h2>Games I Think Are Worth Playing</h2>
     <h2>Games I Think Are Not Worth Playing</h2>
 
-    <!-- Paragraph -->
     <p>
-      Hello, I'm a father and a veteran who likes to game. 
-      I enjoy military simulators like <strong>Arma</strong> or fantasy games like <strong>World of Warcraft</strong>. 
-      This page will tell you what games I've played and I think are worth getting, 
+      Hello, I'm a father and a veteran who likes to game.
+      I enjoy military simulators like <strong>Arma</strong> or fantasy games like <strong>World of Warcraft</strong>.
+      This page will tell you what games I've played and I think are worth getting,
       as well as which games I don't think are worth getting.
     </p>
 
-    <!-- Link -->
     <p>
-      Check out the latest games on 
-      <a href="https://store.steampowered.com/" target="_blank">Steam</a>.
+      Check out the latest games on
+      <a href="https://store.steampowered.com/" target="_blank" rel="noopener">Steam</a>.
     </p>
 
-    <!-- Image -->
     <p>
-      <img src="848cc37e-a2bd-4f64-ad9f-328e26b8d117.png" alt="Spartan Gaming Logo">
+      <img src="spartan.png" alt="Spartan Gaming Logo">
     </p>
   </div>
 
@@ -101,35 +49,39 @@
     const canvas = document.getElementById("matrix");
     const ctx = canvas.getContext("2d");
 
-    // Fullscreen canvas
-    canvas.height = window.innerHeight;
-    canvas.width = window.innerWidth;
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
 
     const letters = "アァイィウヴエェオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     const lettersArray = letters.split("");
-
     const fontSize = 16;
-    const columns = canvas.width / fontSize; 
-    const drops = [];
+    let drops = [];
 
-    for (let x = 0; x < columns; x++) drops[x] = 1; 
+    function initDrops() {
+      const columns = Math.floor(canvas.width / fontSize);
+      drops = new Array(columns).fill(1);
+    }
+    initDrops();
+    window.addEventListener('resize', initDrops);
 
     function draw() {
       ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.fillStyle = "#0F0"; // Green text
+      ctx.fillStyle = "#0F0";
       ctx.font = fontSize + "px monospace";
 
       for (let i = 0; i < drops.length; i++) {
         const text = lettersArray[Math.floor(Math.random() * lettersArray.length)];
         ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
         if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
         drops[i]++;
       }
     }
-
     setInterval(draw, 33);
   </script>
 </body>
