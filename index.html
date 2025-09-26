@@ -5,29 +5,91 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Veteran Dads Who Game</title>
   <style>
-    body { margin: 0; padding: 0; overflow: hidden; background: black; color: white; font-family: Arial, sans-serif; }
-    canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-    .content {
-      position: relative; z-index: 1; max-width: 700px; margin: 50px auto; background: rgba(0,0,0,.7);
-      padding: 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,255,0,.7); text-align: center;
+    /* --- Base + Background --- */
+    body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;     /* allow vertical scroll */
+      background: black;
+      color: white;
+      font-family: Arial, sans-serif;
     }
-    h1 { color: #00ff00; }
-    h2 { margin-bottom: 20px; color: #00ffcc; }
-    p { font-size: 18px; line-height: 1.6; }
+    canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: -1; /* background behind content */
+    }
+
+    /* --- Content Card --- */
+    .content {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 50px auto;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
+      text-align: center;
+    }
+
+    h1 { color: #00ff00; margin-top: 0; }
+    h2 { color: #00ffcc; margin: 24px 0 12px; }
+
+    p { font-size: 18px; line-height: 1.6; margin: 0 auto 18px; max-width: 780px; }
     a { color: #00ffcc; text-decoration: none; font-weight: bold; }
     a:hover { text-decoration: underline; }
-    img { margin-top: 20px; border-radius: 10px; width: 300px; }
+
+    img {
+      margin-top: 20px;
+      border-radius: 10px;
+      width: 300px;
+      max-width: 90%;
+    }
+
+    /* --- Chart/Table of Games --- */
+    .game-table-wrap { margin-top: 24px; }
+    table.game-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(0,255,0,0.25);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .game-table th, .game-table td {
+      padding: 14px 12px;
+      border-bottom: 1px solid rgba(0,255,0,0.15);
+      vertical-align: top;
+      font-size: 18px;
+    }
+    .game-table th {
+      color: #00ffcc;
+      font-size: 20px;
+      background: rgba(0, 40, 0, 0.35);
+      text-transform: none;
+      text-align: center;
+    }
+    .game-table td { text-align: left; }
+    .bullet {
+      list-style: disc;
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    /* Spacer so you can scroll past the card a bit */
+    .spacer { height: 80px; }
   </style>
 </head>
 <body>
   <canvas id="matrix"></canvas>
 
   <div class="content">
+    <!-- Main Heading -->
     <h1>Veteran Dads Who Game</h1>
 
-    <h2>Games I Think Are Worth Playing</h2>
-    <h2>Games I Think Are Not Worth Playing</h2>
-
+    <!-- Intro Paragraph -->
     <p>
       Hello, I'm a father and a veteran who likes to game.
       I enjoy military simulators like <strong>Arma</strong> or fantasy games like <strong>World of Warcraft</strong>.
@@ -35,15 +97,53 @@
       as well as which games I don't think are worth getting.
     </p>
 
+    <!-- Link -->
     <p>
       Check out the latest games on
       <a href="https://store.steampowered.com/" target="_blank" rel="noopener">Steam</a>.
     </p>
 
+    <!-- Image -->
     <p>
       <img src="spartan.png" alt="Spartan Gaming Logo">
     </p>
+
+    <!-- Chart-style table with the two subtitles as headers -->
+    <div class="game-table-wrap">
+      <table class="game-table" aria-label="Games worth playing vs not worth playing">
+        <thead>
+          <tr>
+            <th>Games I Think Are Worth Playing</th>
+            <th>Games I Think Are Not Worth Playing</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <ul class="bullet">
+                <li>World of Warcraft</li>
+                <li>Battlefield 6</li>
+                <li>Foxhole</li>
+                <li>Arma Reforger</li>
+                <li>DayZ</li>
+              </ul>
+            </td>
+            <td>
+              <ul class="bullet">
+                <li>Destiny</li>
+                <li>Call of Duty: Black Ops 7</li>
+                <li>Final Fantasy VII</li>
+                <li>Stellaris</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
   </div>
+
+  <div class="spacer"></div>
 
   <script>
     const canvas = document.getElementById("matrix");
@@ -54,7 +154,7 @@
       canvas.height = window.innerHeight;
     }
     resize();
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', () => { resize(); initDrops(); });
 
     const letters = "アァイィウヴエェオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     const lettersArray = letters.split("");
@@ -66,7 +166,6 @@
       drops = new Array(columns).fill(1);
     }
     initDrops();
-    window.addEventListener('resize', initDrops);
 
     function draw() {
       ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
